@@ -28,10 +28,21 @@ SECRET_KEY = 'sdhaihdie987392bsjdbjs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['oso48gw00w48s048gw804404.37.27.190.171.sslip.io', 'localhost', '127.0.0.1']
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://oso48gw00w48s048gw804404.37.27.190.171.sslip.io",
+]
 # Application definition
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# DEBUG = False
+# ALLOWED_HOSTS = ["oso48gw00w48s048gw804404.37.27.190.171.sslip.io"]
+# CSRF_TRUSTED_ORIGINS = ["https://oso48gw00w48s048gw804404.37.27.190.171.sslip.io"]
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+
 
 INTERNAL_APPS = [
     'django.contrib.admin',
