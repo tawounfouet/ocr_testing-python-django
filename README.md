@@ -15,11 +15,11 @@ Ce projet a été réalisé dans le but de m'entrainer aux différentes formes d
 git clone https://github.com/tawounfouet/testing-python-django.git
 ```
 ### 2. Mise en place un environnement virtuel :
-* Créer l'environnement virtuel: `python3.10 -m venv .env`
+* Créer l'environnement virtuel: `python3.10 -m venv .venv`
 * Activer l'environnement virtuel :
-    * Windows : `venv\Scripts\activate.bat`
-    * Unix/MacOS : `source .env/bin/activate`
-    
+    * Windows : `.venv\Scripts\activate.bat`
+    * Unix/MacOS : `source .venv/bin/activate`
+
 ### 3. Installer les dépendances du projet
 ```
 pip install -r requirements.txt
