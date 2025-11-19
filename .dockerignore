@@ -1,0 +1,56 @@
+# Fichiers et dossiers à ignorer lors du build Docker
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django
+db.sqlite3
+*.log
+local_settings.py
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Tests
+.coverage
+.pytest_cache/
+.tox/
+htmlcov/
+
+# Documentation
+docs/
+README.md
+
+# Node modules (si applicable)
+node_modules/
+
+# Fichiers temporaires
+*.tmp
+*.temp

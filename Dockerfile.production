@@ -1,0 +1,72 @@
+# Dockerfile de production avec multi-stage build
+FROM python:3.10-slim as builder
+
+# Définir les variables d'environnement
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Installer les dépendances de build
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Créer et utiliser un répertoire de travail
+WORKDIR /app
+
+# Copier requirements et installer les dépendances
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Stage de production
+FROM python:3.10-slim as production
+
+# Variables d'environnement
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH=/root/.local/bin:$PATH
+
+# Installer les dépendances runtime
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libmagic1 \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Créer un utilisateur non-root
+RUN useradd --create-home --shell /bin/bash django
+
+# Copier les packages Python depuis le stage builder
+COPY --from=builder /root/.local /root/.local
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier le code de l'application
+COPY . .
+
+# Créer les répertoires nécessaires
+RUN mkdir -p static media logs
+
+# Installer gunicorn pour la production
+RUN pip install gunicorn
+
+# Changer le propriétaire vers l'utilisateur django
+RUN chown -R django:django /app
+
+# Passer à l'utilisateur non-root
+USER django
+
+# Collecter les fichiers statiques
+RUN python manage.py collectstatic --noinput
+
+# Exposer le port
+EXPOSE 8000
+
+# Variables d'environnement Django
+ENV DJANGO_SETTINGS_MODULE=Project.settings
+
+# Commande de démarrage avec gunicorn pour la production
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "Project.wsgi:application"]
