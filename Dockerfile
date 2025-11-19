@@ -13,13 +13,24 @@ RUN useradd --create-home --shell /bin/bash django
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Installer les dépendances système nécessaires
+# Installer les dépendances système nécessaires (toutes en une fois pour optimiser les couches)
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     libmagic1 \
     libffi-dev \
-    && rm -rf /var/lib/apt/lists/*
+    zlib1g-dev \
+    libjpeg-dev \
+    libtiff-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libwebp-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libxcb1-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --upgrade pip
 
 # Copier et installer les dépendances Python
 COPY requirements.txt .

@@ -1,0 +1,65 @@
+# Dockerfile optimisé pour éviter les problèmes de compilation
+FROM python:3.10-slim
+
+# Variables d'environnement
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Créer un utilisateur non-root
+RUN useradd --create-home --shell /bin/bash django
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Installer les dépendances système minimales
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Mettre à jour pip et installer les roues en premier
+RUN pip install --upgrade pip
+
+# Copier requirements et installer uniquement les dépendances critiques d'abord
+COPY requirements.txt .
+
+# Installer les dépendances Python avec des wheels pré-compilées
+RUN pip install --no-cache-dir --only-binary=all -r requirements.txt || \
+    (apt-get update && apt-get install -y \
+        build-essential \
+        libpq-dev \
+        zlib1g-dev \
+        libjpeg-dev \
+        libtiff-dev \
+        libfreetype6-dev \
+        pkg-config \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y build-essential \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*)
+
+# Copier le code de l'application
+COPY . .
+
+# Créer les répertoires nécessaires
+RUN mkdir -p static media
+
+# Changer le propriétaire vers l'utilisateur django
+RUN chown -R django:django /app
+
+# Passer à l'utilisateur non-root
+USER django
+
+# Collecter les fichiers statiques
+RUN python manage.py collectstatic --noinput
+
+# Exposer le port
+EXPOSE 8000
+
+# Variables d'environnement Django
+ENV DJANGO_SETTINGS_MODULE=Project.settings
+
+# Commande de démarrage
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -4,54 +4,47 @@ Ce guide explique comment utiliser Docker avec ce projet Django.
 
 ## Fichiers Docker créés
 
-- `Dockerfile` : Configuration Docker pour le développement
+- `Dockerfile` : Configuration Docker pour le développement (avec dépendances complètes)
+- `Dockerfile.optimized` : Version optimisée qui évite la compilation de Pillow
 - `Dockerfile.production` : Configuration optimisée pour la production
 - `docker-compose.yml` : Orchestration des services (Django + PostgreSQL)
 - `.dockerignore` : Fichiers à ignorer lors du build
 - `docker-entrypoint.sh` : Script d'initialisation
 
+## Problème résolu - Installation de Pillow
+
+Le déploiement initial échouait à cause de l'installation de Pillow qui nécessite des dépendances système pour compiler depuis les sources. J'ai corrigé cela en :
+
+1. **Ajoutant les dépendances système nécessaires** : `zlib1g-dev`, `libjpeg-dev`, `libtiff-dev`, etc.
+2. **Mettant à jour Pillow** vers une version plus récente dans `requirements.txt`
+3. **Créant une version optimisée** (`Dockerfile.optimized`) qui utilise des wheels pré-compilées
+
 ## Utilisation
 
-### Développement avec Docker Compose
+### Option 1 : Développement avec Docker Compose
 
-1. **Build et démarrage des services :**
 ```bash
 docker-compose up --build
 ```
 
-2. **Démarrage en arrière-plan :**
+### Option 2 : Build manuel avec le Dockerfile optimisé
+
 ```bash
-docker-compose up -d
+# Build avec la version optimisée (recommandé)
+docker build -f Dockerfile.optimized -t django-testing:optimized .
+
+# Run du conteneur
+docker run -p 8000:8000 django-testing:optimized
 ```
 
-3. **Voir les logs :**
-```bash
-docker-compose logs -f
-```
+### Option 3 : Build standard
 
-4. **Arrêter les services :**
 ```bash
-docker-compose down
-```
-
-### Build Manuel
-
-#### Pour le développement :
-```bash
-# Build de l'image
+# Build standard (avec toutes les dépendances)
 docker build -t django-testing .
 
 # Run du conteneur
 docker run -p 8000:8000 django-testing
-```
-
-#### Pour la production :
-```bash
-# Build de l'image de production
-docker build -f Dockerfile.production -t django-testing:prod .
-
-# Run du conteneur de production
-docker run -p 8000:8000 django-testing:prod
 ```
 
 ### Commandes utiles

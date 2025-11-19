@@ -11,6 +11,16 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
+    zlib1g-dev \
+    libjpeg-dev \
+    libtiff-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libwebp-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libxcb1-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Créer et utiliser un répertoire de travail
